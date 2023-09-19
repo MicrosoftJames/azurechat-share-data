@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, MessageCircle } from "lucide-react";
+import { Database, FileText, MessageCircle } from "lucide-react";
 import { FC } from "react";
 import { ChatType } from "../chat-services/models";
 
@@ -19,28 +19,28 @@ export const ChatTypeSelector: FC<Prop> = (props) => {
           : null
       }
     >
-      <TabsList className="grid w-full grid-cols-2 h-12 items-stretch">
+      <TabsList className="grid w-full grid-cols-3 h-15 items-stretch">
         <TabsTrigger
           value="simple"
           className="flex gap-2"
           disabled={props.disable}
         >
-          <MessageCircle size={20} /> General
+          <MessageCircle size={15} /> General
         </TabsTrigger>
         <TabsTrigger
           value="data"
           className="flex gap-2"
           disabled={props.disable}
         >
-          <FileText size={20} /> File
+          <FileText size={15} /> File
         </TabsTrigger>
-        {/* <TabsTrigger
-          value="mssql"
+        <TabsTrigger
+          value="shared"
           className="flex gap-2"
           disabled={props.disable}
         >
-          <Database size={20} /> Database
-        </TabsTrigger> */}
+          <Database size={15} /> Shared
+        </TabsTrigger>
       </TabsList>
     </Tabs>
   );

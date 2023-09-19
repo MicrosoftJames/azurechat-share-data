@@ -7,7 +7,8 @@ export const PromptGPT = async (props: PromptGPTProps) => {
     return await ChatSimple(props);
   } else if (props.chatType === "data") {
     return await ChatData(props);
-  } else if (props.chatType === "mssql") {
+  } else if (props.chatType === "shared") {
+    // upsert the first cosmosdb entry to include dataSourceId
     return await ChatData(props);
   } else {
     return await ChatSimple(props);

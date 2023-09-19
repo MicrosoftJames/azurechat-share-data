@@ -15,11 +15,16 @@ interface Prop {
   onChatTypeChange: (value: ChatType) => void;
   onConversationStyleChange: (value: ConversationStyle) => void;
   onFileChange: (file: FormData) => void;
+  onDataSourceChange: (value: string) => void;
 }
 
 export const EmptyState: FC<Prop> = (props) => {
-  const [showFileUpload, setShowFileUpload] = useState<ChatType>("simple");
+  const [showDataSelection, setShowDataSelection] = useState<ChatType>("simple");
   const [isFileNull, setIsFileNull] = useState(true);
+
+  const onDataSourceChange = (e: string) => {
+    props.onDataSourceChange(e);
+  };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,8 +34,7 @@ export const EmptyState: FC<Prop> = (props) => {
   };
 
   const onChatTypeChange = (value: ChatType) => {
-    setShowFileUpload(value);
-    setIsFileNull(true);
+    setShowDataSelection(value);
     props.onChatTypeChange(value);
   };
 
@@ -68,7 +72,8 @@ export const EmptyState: FC<Prop> = (props) => {
             disable={false}
           />
         </div>
-        {showFileUpload === "data" && (
+        {        
+        showDataSelection === "data" && (
           <div className="flex flex-col gap-2">
             <form onSubmit={onSubmit} className="flex gap-2">
               <Input
@@ -97,6 +102,20 @@ export const EmptyState: FC<Prop> = (props) => {
               </Button>
             </form>
             <p className="text-xs text-primary">{props.uploadButtonLabel}</p>
+          </div>
+        ) 
+        }
+        {showDataSelection === "shared" && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-muted-foreground">
+              {/* create a dropdown */}
+              <select className="w-full" onChange={(e) => {
+                onDataSourceChange(e.target.value);}}>
+                <option value="1">Shared 1</option>
+                <option value="2">Shared 2</option>
+                <option value="3">Shared 3</option>
+              </select>
+            </p>
           </div>
         )}
       </Card>

@@ -148,7 +148,8 @@ export const updateChatThreadTitle = async (
   chatType: ChatType,
   conversationStyle: ConversationStyle,
   chatOverFileName: string,
-  userMessage: string
+  userMessage: string,
+  dataSourceId: string
 ) => {
   if (messages.length === 0) {
     const updatedChatThread = await UpsertChatThread({
@@ -157,7 +158,7 @@ export const updateChatThreadTitle = async (
       chatOverFileName: chatOverFileName,
       conversationStyle: conversationStyle,
       name: userMessage.substring(0, 30),
-    });
+      dataSourceId: dataSourceId});
 
     return updatedChatThread.resource!;
   }
@@ -176,7 +177,8 @@ export const CreateChatThread = async () => {
     chatType: "simple",
     conversationStyle: "precise",
     type: CHAT_THREAD_ATTRIBUTE,
-    chatOverFileName: ""
+    chatOverFileName: "",
+    dataSourceId: ""
   };
 
   const container = await CosmosDBContainer.getInstance().getContainer();
@@ -185,7 +187,7 @@ export const CreateChatThread = async () => {
 };
 
 export const initAndGuardChatSession = async (props: PromptGPTProps) => {
-  const { messages, id, chatType, conversationStyle, chatOverFileName } = props;
+  const { messages, id, chatType, conversationStyle, chatOverFileName, dataSourceId } = props;
 
   //last message
   const lastHumanMessage = messages[messages.length - 1];
@@ -199,7 +201,8 @@ export const initAndGuardChatSession = async (props: PromptGPTProps) => {
     chatType,
     conversationStyle,
     chatOverFileName,
-    lastHumanMessage.content
+    lastHumanMessage.content,
+    dataSourceId
   );
 
   return {

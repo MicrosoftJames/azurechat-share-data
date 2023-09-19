@@ -28,9 +28,20 @@ export const ChatData = async (props: PromptGPTProps) => {
     streaming: true,
   });
 
+
+  let filter = ''
+  //  pass in a different filter if we are using a shared data source or not
+  if (props.dataSourceId.length === 0) {
+    filter += `user eq '${await userHashedId()}' and chatThreadId eq '${id}'`
+  }
+  else
+  {
+    filter += `dataSourceId eq '${props.dataSourceId}'`
+  }
+  
   const relevantDocuments = await findRelevantDocuments(
     lastHumanMessage.content,
-    id
+    filter
   );
 
   const chain = loadQAMapReduceChain(chatModel, {
@@ -67,12 +78,12 @@ export const ChatData = async (props: PromptGPTProps) => {
   return new StreamingTextResponse(stream);
 };
 
-const findRelevantDocuments = async (query: string, chatThreadId: string) => {
+export const findRelevantDocuments = async (query: string, filter: string) => {
   const vectorStore = initVectorStore();
 
   const relevantDocuments = await vectorStore.similaritySearch(query, 10, {
     vectorFields: vectorStore.config.vectorFieldName,
-    filter: `user eq '${await userHashedId()}' and chatThreadId eq '${chatThreadId}'`,
+    filter: filter,
   });
 
   return relevantDocuments;

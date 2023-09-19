@@ -42,7 +42,8 @@ export const ChatUI: FC<Prop> = (props) => {
     id: props.chatThread.id,
     chatType: props.chatThread.chatType,
     conversationStyle: props.chatThread.conversationStyle,
-    chatOverFileName: props.chatThread.chatOverFileName
+    chatOverFileName: props.chatThread.chatOverFileName,
+    dataSourceId: props.chatThread.dataSourceId
   });
 
   const { toast } = useToast();
@@ -89,6 +90,10 @@ export const ChatUI: FC<Prop> = (props) => {
 
   const onConversationStyleChange = (value: ConversationStyle) => {
     setBody((e) => ({ ...e, conversationStyle: value }));
+  };
+
+  const onDataSourceChange = (value: string) => {
+    setBody((e) => ({ ...e, dataSourceId: value }));
   };
 
   const onHandleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -176,6 +181,7 @@ export const ChatUI: FC<Prop> = (props) => {
           onFileChange={onFileChange}
           onConversationStyleChange={onConversationStyleChange}
           onChatTypeChange={onChatTypeChange}
+          onDataSourceChange={onDataSourceChange}
           chatType={chatBody.chatType}
           conversationStyle={chatBody.conversationStyle}
         />

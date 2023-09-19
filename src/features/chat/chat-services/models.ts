@@ -17,11 +17,11 @@ export interface ChatMessageModel {
 }
 
 export type ConversationStyle = "creative" | "balanced" | "precise";
-export type ChatType = "simple" | "data" | "mssql";
+export type ChatType = "simple" | "data" | "mssql" | "shared"
 
 export type ChatRole = "system" | "user" | "assistant" | "function";
 
-export interface ChatThreadModel {
+export interface  ChatThreadModel {
   id: string;
   name: string;
   createdAt: Date;
@@ -31,6 +31,7 @@ export interface ChatThreadModel {
   chatType: ChatType;
   conversationStyle: ConversationStyle;
   chatOverFileName: string;
+  dataSourceId: string;
   type: "CHAT_THREAD";
 }
 
@@ -39,6 +40,7 @@ export interface PromptGPTBody {
   chatType: ChatType;
   conversationStyle: ConversationStyle;
   chatOverFileName: string;
+  dataSourceId: string;
 }
 
 export interface PromptGPTProps extends PromptGPTBody {
