@@ -79,7 +79,6 @@ export const ChatUI: FC<Prop> = (props) => {
           ...message,
           references: references
         };
-        console.log("newMessage: " + JSON.stringify(newMessage));
         return newMessage;
       }
       return message;
@@ -89,7 +88,7 @@ export const ChatUI: FC<Prop> = (props) => {
   }
 
   function getNextMessageId(id: string) {
-    // find the id of the next message
+    // find the id of the next message after this one
     const index = messages.findIndex((message) => message.id === id);
     if (index === -1) {
       return null;
@@ -150,8 +149,8 @@ export const ChatUI: FC<Prop> = (props) => {
   };
 
   const onDataSourceChange = (value: string) => {
-    console.log("onDataSourceChange: " + value);
-    setBody((e) => ({ ...e, dataSourceId: value }));
+    const dataSourceName = props.dataSources.find((e) => e.dataSourceId === value)?.displayName!;
+    setBody((e) => ({ ...e, dataSourceId: value, dataSourceName: dataSourceName }));
   };
 
   const onHandleSubmit = (e: FormEvent<HTMLFormElement>) => {
