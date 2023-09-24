@@ -20,6 +20,7 @@ import {
   ChatType,
   ConversationStyle,
   DataSource,
+  MessageReferences,
   PromptGPTBody,
   RAGMessage,
 } from "../chat-services/models";
@@ -99,12 +100,12 @@ export const ChatUI: FC<Prop> = (props) => {
     
   useEffect(() => {
     if (data) {
-      data.forEach((dict_: Record<string, any>) => {
-        const id = dict_["id"];
-        const references = dict_["references"];
-        const nextId = getNextMessageId(id);
-        if (nextId) {
-          addReferencesToMessageWithId(nextId, references);
+      data.forEach((messageReferences: MessageReferences) => {
+        const messageId = messageReferences.messageId;
+        const references = messageReferences.references;
+        const nextMessageId = getNextMessageId(messageId);
+        if (nextMessageId) {
+          addReferencesToMessageWithId(nextMessageId, references);
         }
       });
     }

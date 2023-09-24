@@ -42,6 +42,17 @@ export interface DataSource {
   dataSourceId: string;
 }
 
+export interface DataSourcePrompt {
+  theConversationIsAbout: string;
+  theContextContains: string;
+  rules: string[];
+}
+
+export interface MessageReferences {
+  messageId: string;
+  references: string[];
+}  
+
 export interface RAGMessage extends Message {
   references: string[];
 }

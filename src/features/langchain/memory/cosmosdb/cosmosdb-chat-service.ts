@@ -9,9 +9,9 @@ import {
 import { StoredMessage } from "langchain/schema";
 
 export const getChatMessages = async (
-  sessionId: string
+  threadId: string
 ): Promise<StoredMessage[]> => {
-  const items = await FindAllChats(sessionId);
+  const items = await FindAllChats(threadId);
   const ms: StoredMessage[] = [];
   items.forEach((item) => {
     ms.push({
