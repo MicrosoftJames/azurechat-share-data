@@ -48,7 +48,7 @@ export const ChatUI: FC<Prop> = (props) => {
     conversationStyle: props.chatThread.conversationStyle,
     chatOverFileName: props.chatThread.chatOverFileName,
     dataSourceId: props.chatThread.dataSourceId,
-    dataSourceName: props.chatThread.dataSourceName,
+    dataSourceName: props.dataSources.find((e) => e.dataSourceId === props.chatThread.dataSourceId)?.displayName!,
   });
 
   const { toast } = useToast();

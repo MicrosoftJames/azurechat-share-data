@@ -33,7 +33,6 @@ export interface  ChatThreadModel {
   conversationStyle: ConversationStyle;
   chatOverFileName: string;
   dataSourceId: string;
-  dataSourceName: string;
   type: "CHAT_THREAD";
 }
 
