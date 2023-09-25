@@ -19,7 +19,7 @@ export const ChatTypeSelector: FC<Prop> = (props) => {
           : null
       }
     >
-      <TabsList className="grid w-full grid-cols-3 h-15 items-stretch">
+      <TabsList className="grid w-full grid-cols-3 h-12 items-stretch">
         <TabsTrigger
           value="simple"
           className="flex gap-2"
