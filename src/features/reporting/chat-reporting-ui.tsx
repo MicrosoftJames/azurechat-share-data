@@ -25,6 +25,7 @@ export const ChatReportingUI: FC<Props> = async (props) => {
               message={message.content}
               type={message.role}
               key={index}
+              references={message.references ?? []}
             />
           ))}
         </div>

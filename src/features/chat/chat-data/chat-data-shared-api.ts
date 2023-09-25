@@ -40,14 +40,16 @@ export const ChatDataShared = async (props: PromptGPTProps) => {
     );
   
   const data = new experimental_StreamData();
-  const references = relevantDocuments.map((doc) => doc.metadata);
+  const references = relevantDocuments.map((doc) => doc.metadata as unknown as string)
 
   const messageReferences: MessageReferences = {
     messageId: lastHumanMessage.id,
     references: references,
   };
 
-  data.append(messageReferences);
+  const messageReferencesJson = JSON.stringify(messageReferences);
+
+  data.append(messageReferencesJson);
 
   const endpoint = "https://" + process.env.AZURE_OPENAI_API_INSTANCE_NAME + ".openai.azure.com/";
   const openai = new OpenAIClient(endpoint, new AzureKeyCredential(process.env.AZURE_OPENAI_API_KEY))
@@ -59,7 +61,7 @@ export const ChatDataShared = async (props: PromptGPTProps) => {
   messages.push(...previousMessages)
   messages.push({role: "user", content: lastHumanMessage.content})
 
-  const events = openai.listChatCompletions(process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME, messages, { stream: true });
+  const events = openai.listChatCompletions(process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME, messages, { stream: true }) as unknown as AsyncIterableIterator<any>;
 
   const stream = OpenAIStream(
     events, 
@@ -97,7 +99,7 @@ const buildContextFromRelevantDocuments = (relevantDocuments: any[]) => {
 };
 
 interface OpenAIMessage {
-  role: string | undefined;
+  role: string;
   content: string;
 }
 const getPreviousMessages = async (threadId: string): Promise<OpenAIMessage[]> => {

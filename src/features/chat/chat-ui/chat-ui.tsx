@@ -7,7 +7,7 @@ import { useChatScrollAnchor } from "@/components/hooks/use-chat-scroll-anchor";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { AI_NAME } from "@/features/theme/customise";
-import { useChat } from "ai/react";
+import { Message, useChat } from "ai/react";
 import { useSession } from "next-auth/react";
 import { FC, FormEvent, useEffect, useRef, useState } from "react";
 import {
@@ -204,6 +204,18 @@ export const ChatUI: FC<Prop> = (props) => {
     }
   };
 
+  const convertToRAGMessage = (message: Message | RAGMessage) => {
+    if (message.hasOwnProperty("references")) {
+      return message as RAGMessage;
+    } else {
+      const newMessage: RAGMessage = {
+        ...message,
+        references: []
+      };
+      return newMessage;
+    }
+  };
+
   const ChatWindow = (
     <div className="h-full rounded-md overflow-y-auto " ref={scrollRef}>
       <div className="flex justify-center p-4">
@@ -221,7 +233,9 @@ export const ChatUI: FC<Prop> = (props) => {
             message={message.content}
             type={message.role}
             key={index}
-            references={message.hasOwnProperty("references") ? message.references : []}
+            references={
+              convertToRAGMessage(message).references
+            }
           />
         ))}
         {isLoading && <ChatLoading />}
