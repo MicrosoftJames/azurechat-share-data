@@ -27,6 +27,9 @@ import {
 import { transformCosmosToAIModel } from "../chat-services/utils";
 import { EmptyState } from "./chat-empty-state";
 import { ChatHeader } from "./chat-header";
+import { JSONValue } from "ai";
+import { ConversationalRetrievalQAChain } from "langchain/chains";
+import { ConsoleCallbackHandler } from "langchain/callbacks";
 
 interface Prop {
   chats: Array<ChatMessageModel>;
@@ -100,7 +103,8 @@ export const ChatUI: FC<Prop> = (props) => {
     
   useEffect(() => {
     if (data) {
-      data.forEach((messageReferences: MessageReferences) => {
+      data.forEach((messageReferencesJsonString: string) => {
+        const messageReferences: MessageReferences = JSON.parse(messageReferencesJsonString);
         const messageId = messageReferences.messageId;
         const references = messageReferences.references;
         const nextMessageId = getNextMessageId(messageId);
