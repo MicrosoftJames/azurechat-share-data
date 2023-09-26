@@ -19,11 +19,14 @@ export const StartNewChat: FC<Prop> = (props) => {
         </Typography>
         <div className="flex flex-col gap-2">
           <p className="">
-            Welcome to {AI_NAME}. You should interact in a friendly manner with
-            the AI assistant and refrain from participating in any harmful
-            activities.
+            Welcome to {AI_NAME}.
+            </p>
+          <p>
+             This is app is running in public cloud. Please do not submit any sensitive information. 
+            </p>
+          <p>
+            You can start a new chat by clicking the button below.
           </p>
-          <p>You can start a new chat with me by clicking the button below.</p>
         </div>
         <div className="-mx-5 -mb-5 p-5 flex flex-col border-t bg-muted">
           <NewChat />
