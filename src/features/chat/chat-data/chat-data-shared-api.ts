@@ -83,10 +83,10 @@ export const ChatDataShared = async (props: PromptGPTProps) => {
   The context contains ${dataSourceSpecificPrompts.theContextContains}. 
   If the context is empty or If you don't know the answer, politely decline to answer the question. Don't try to make up an answer.
     
-  # Note:
+  ${dataSourceSpecificPrompts.rules.length > 0 ? "# Rules:" : ""}
   ${dataSourceSpecificPrompts.rules.map((rule) => {return `- ${rule}`}).join("\n")}
     
-  # news articles:
+  # Context:
   ${context}
   `
   return systemMessage
