@@ -3,7 +3,7 @@
 import { OpenAIStream, StreamingTextResponse, experimental_StreamData } from "ai";
 import { insertPromptAndResponse } from "../chat-services/chat-service";
 import { initAndGuardChatSession } from "../chat-services/chat-thread-service";
-import { PromptGPTProps, MessageReferences, DataSource, DataSourcePrompt } from "../chat-services/models";
+import { PromptGPTProps, MessageMetadata, DataSourcePrompt } from "../chat-services/models";
 import { findRelevantDocuments } from "./chat-data-utils";
 import { OpenAIClient }  from "@azure/openai";
 import { AzureKeyCredential } from "@azure/openai";
@@ -42,14 +42,17 @@ export const ChatDataShared = async (props: PromptGPTProps) => {
   const data = new experimental_StreamData();
   const references = relevantDocuments.map((doc) => doc.metadata as unknown as string)
 
-  const messageReferences: MessageReferences = {
+  const messageMetadata: MessageMetadata = {
     messageId: lastHumanMessage.id,
-    references: references,
+    metadata: {
+      references: references,
+      semanticSearchQuery: relevantDocumentQuery
+    }
   };
 
-  const messageReferencesJson = JSON.stringify(messageReferences);
+  const messageMetadataJson = JSON.stringify(messageMetadata);
 
-  data.append(messageReferencesJson);
+  data.append(messageMetadataJson);
 
   const endpoint = "https://" + process.env.AZURE_OPENAI_API_INSTANCE_NAME + ".openai.azure.com/";
   const openai = new OpenAIClient(endpoint, new AzureKeyCredential(process.env.AZURE_OPENAI_API_KEY))
@@ -70,7 +73,7 @@ export const ChatDataShared = async (props: PromptGPTProps) => {
         data.close();
       },
       onCompletion: async (completion: string) => {
-        await insertPromptAndResponse(id, lastHumanMessage.content, completion, references);
+        await insertPromptAndResponse(id, lastHumanMessage.content, completion, messageMetadata.metadata);
       }
   });
 
@@ -124,7 +127,8 @@ const getRelevantDocumentQuery = async (lastHumanMessageContent: string, previou
 
   const previousMessageString = previousMessages.map((message) => {return `${message.role}: ${message.content}`}).join("\n\n")
   const systemMessageContent = `You will be given a conversation history and a user question. You will produce a short piece of text 
-  that will be used as a semantic search query to find relevant documents. The conversation is about ${dataSourceSpecificPrompts.theConversationIsAbout}. *Do not try to answer the user's question, only produce a query that can be used to find relevant documents*.
+  that will be used as a semantic search query to find relevant documents. The conversation is about ${dataSourceSpecificPrompts.theConversationIsAbout}. 
+  *Do not try to answer the user's question, only produce a query that can be used to find relevant documents*.
 
   # Conversation history:
   ${previousMessageString}
@@ -143,6 +147,7 @@ const getRelevantDocumentQuery = async (lastHumanMessageContent: string, previou
       }
     }
   }
+  chatbotResponse = chatbotResponse.replace("\"", "").replace("\"", "").trim()
   console.log("Semantic search query:", chatbotResponse)
   return chatbotResponse
 }

@@ -20,16 +20,13 @@ import {
   ChatType,
   ConversationStyle,
   DataSource,
-  MessageReferences,
+  MessageMetadata,
   PromptGPTBody,
   RAGMessage,
 } from "../chat-services/models";
 import { transformCosmosToAIModel } from "../chat-services/utils";
 import { EmptyState } from "./chat-empty-state";
 import { ChatHeader } from "./chat-header";
-import { JSONValue } from "ai";
-import { ConversationalRetrievalQAChain } from "langchain/chains";
-import { ConsoleCallbackHandler } from "langchain/callbacks";
 
 interface Prop {
   chats: Array<ChatMessageModel>;
@@ -75,13 +72,13 @@ export const ChatUI: FC<Prop> = (props) => {
     initialMessages: transformCosmosToAIModel(props.chats),
   });
 
-  function addReferencesToMessageWithId(id: string, references: string[]) {
+  function addMetadataToMessageWithId(id: string, metadata: {references: string[], semanticSearchQuery: string}) {
     // updates messages with the new message
     const newMessages = messages.map((message) => {
       if (message.id === id) {
         const newMessage: RAGMessage = {
           ...message,
-          references: references
+          metadata: metadata
         };
         return newMessage;
       }
@@ -103,13 +100,12 @@ export const ChatUI: FC<Prop> = (props) => {
     
   useEffect(() => {
     if (data) {
-      data.forEach((messageReferencesJsonString: string) => {
-        const messageReferences: MessageReferences = JSON.parse(messageReferencesJsonString);
-        const messageId = messageReferences.messageId;
-        const references = messageReferences.references;
+      data.forEach((messageMetadataJsonString: string) => {
+        const messageMetadata: MessageMetadata = JSON.parse(messageMetadataJsonString);
+        const messageId = messageMetadata.messageId;
         const nextMessageId = getNextMessageId(messageId);
         if (nextMessageId) {
-          addReferencesToMessageWithId(nextMessageId, references);
+          addMetadataToMessageWithId(nextMessageId, messageMetadata.metadata);
         }
       });
     }
@@ -209,12 +205,15 @@ export const ChatUI: FC<Prop> = (props) => {
   };
 
   const convertToRAGMessage = (message: Message | RAGMessage) => {
-    if (message.hasOwnProperty("references")) {
+    if (message.hasOwnProperty("metadata")) {
       return message as RAGMessage;
     } else {
       const newMessage: RAGMessage = {
         ...message,
-        references: []
+        metadata: {
+          references: [],
+          semanticSearchQuery: ""
+        }
       };
       return newMessage;
     }
@@ -237,8 +236,8 @@ export const ChatUI: FC<Prop> = (props) => {
             message={message.content}
             type={message.role}
             key={index}
-            references={
-              convertToRAGMessage(message).references
+            metadata={
+              convertToRAGMessage(message).metadata
             }
           />
         ))}

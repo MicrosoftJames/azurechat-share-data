@@ -49,7 +49,10 @@ export class CosmosDBChatMessageHistory extends BaseListChatMessageHistory {
       role: message instanceof AIMessage ? "assistant" : "user",
       threadId: this.sessionId,
       userId: this.userId,
-      references: [],
+      metadata: {
+        references: [],
+        semanticSearchQuery: "",
+      },
     };
 
     await addChatMessage(modelToSave);

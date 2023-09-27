@@ -17,7 +17,10 @@ interface ChatRowProps {
   profilePicture: string;
   message: string;
   type: ChatRole;
-  references: string[];
+  metadata: {
+    references: string[],
+    semanticSearchQuery: string
+  };
 }
 
 const ChatRow: FC<ChatRowProps> = (props) => {
@@ -31,9 +34,9 @@ const ChatRow: FC<ChatRowProps> = (props) => {
     navigator.clipboard.writeText(props.message);
   };
 
-  const [showReferences, setShowReferences] = useState(false);
+  const [showMetadata, setShowMetadata] = useState(false);
   const handleDropDownClick = () => {
-    setShowReferences((prevState) => !prevState);
+    setShowMetadata((prevState) => !prevState);
   };
 
   return (
@@ -141,26 +144,38 @@ const ChatRow: FC<ChatRowProps> = (props) => {
           )}
         </div>
 
-          {props.references && props.references.length > 0 && (
+          {props.metadata && (props.metadata.references.length > 0 || props.metadata.semanticSearchQuery.length > 0) && (
             <div className="justify-start">
               <Button
                 variant={"link"}
                 size={"sm"}
-                title="Show references"
+                title="Show metadata"
                 className="justify-right flex"
                 style={{paddingLeft: 0, paddingRight: 0}}
                 onClick={handleDropDownClick}>
                 <Typography variant="h5" className="capitalize text-sm">
-                  Show References
+                  Show Metadata
                 </Typography>
               </Button>
-              {showReferences && (
+              {showMetadata && (
                 <div>
-                  {props.references.map((reference, index) => (
+                  <p className="font-bold" style={{fontSize: 15}}>
+                    Semantic Search Query: 
+                  </p>
+                  <MemoizedReactMarkdown className="prose prose-slate dark:prose-invert break-words prose-p:leading-relaxed prose-pre:p-0 max-w-none">
+                  {props.metadata.semanticSearchQuery}
+                  </MemoizedReactMarkdown>
+                  <br/>
+                  <p className="font-bold" style={{fontSize: 15}}>
+                    References: 
+                  </p>
+                  <p>
+                  {props.metadata.references.map((reference, index) => (
                     <MemoizedReactMarkdown key={index} className="prose prose-slate dark:prose-invert break-words prose-p:leading-relaxed prose-pre:p-0 max-w-none">
                       {reference}
                     </MemoizedReactMarkdown>)
-                    )}    
+                    )}
+                    </p>
                 </div>
               )}
           

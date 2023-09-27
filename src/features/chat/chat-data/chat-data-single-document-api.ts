@@ -39,7 +39,7 @@ export const ChatDataSingleDocument = async (props: PromptGPTProps) => {
 
   const { stream, handlers } = LangChainStream({
     onCompletion: async (completion: string) => {
-      await insertPromptAndResponse(id, lastHumanMessage.content, completion, []);
+      await insertPromptAndResponse(id, lastHumanMessage.content, completion, {references: [], semanticSearchQuery: ""})
     },
   });
 

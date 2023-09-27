@@ -13,7 +13,10 @@ export interface ChatMessageModel {
   userId: string;
   content: string;
   role: ChatRole;
-  references: string[];
+  metadata: {
+    references: string[];
+    semanticSearchQuery: string;
+  }
   type: "CHAT_MESSAGE";
 }
 
@@ -47,13 +50,19 @@ export interface DataSourcePrompt {
   rules: string[];
 }
 
-export interface MessageReferences {
+export interface MessageMetadata {
   messageId: string;
-  references: string[];
+  metadata: {
+    references: string[],
+    semanticSearchQuery: string;
+  }
 }  
 
 export interface RAGMessage extends Message {
-  references: string[];
+  metadata: {
+    references: string[],
+    semanticSearchQuery: string;
+  }
 }
 
 export interface PromptGPTBody {

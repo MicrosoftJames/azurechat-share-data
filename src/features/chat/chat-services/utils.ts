@@ -5,13 +5,13 @@ export const transformCosmosToAIModel = (
   chats: Array<ChatMessageModel>
 ): Array<Message | RAGMessage> => {
   return chats.map((chat) => {
-    if (chat.hasOwnProperty("references")) {
+    if (chat.hasOwnProperty("metadata")) {
       return {
         role: chat.role,
         content: chat.content,
         id: chat.id,
         createdAt: chat.createdAt,
-        references: chat.references,
+        metadata: chat.metadata,
       };
     }
     else 

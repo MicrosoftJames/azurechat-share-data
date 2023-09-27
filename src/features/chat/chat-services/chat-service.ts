@@ -52,7 +52,10 @@ export const insertPromptAndResponse = async (
   threadID: string,
   userQuestion: string,
   assistantResponse: string,
-  references: string[]
+  metadata: {
+    references: string[];
+    semanticSearchQuery: string;
+  }
 ) => {
   await UpsertChat({
     ...newChatModel(),
@@ -65,7 +68,7 @@ export const insertPromptAndResponse = async (
     content: assistantResponse,
     threadId: threadID,
     role: "assistant",
-    references: references,
+    metadata: metadata,
   });
 };
 
@@ -75,7 +78,10 @@ export const newChatModel = (): ChatMessageModel => {
     threadId: "",
     role: "user",
     userId: "",
-    references: [],
+    metadata: {
+      references: [],
+      semanticSearchQuery: "",
+    },
     id: nanoid(),
     createdAt: new Date(),
     type: MESSAGE_ATTRIBUTE,
