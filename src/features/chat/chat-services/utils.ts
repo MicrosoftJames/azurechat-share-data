@@ -1,16 +1,28 @@
 import { Message } from "ai";
-import { ChatMessageModel, ConversationStyle } from "./models";
+import { ChatMessageModel, ConversationStyle, RAGMessage } from "./models";
 
 export const transformCosmosToAIModel = (
   chats: Array<ChatMessageModel>
-): Array<Message> => {
+): Array<Message | RAGMessage> => {
   return chats.map((chat) => {
+    if (chat.hasOwnProperty("references")) {
+      return {
+        role: chat.role,
+        content: chat.content,
+        id: chat.id,
+        createdAt: chat.createdAt,
+        references: chat.references,
+      };
+    }
+    else 
+    {
     return {
       role: chat.role,
       content: chat.content,
       id: chat.id,
       createdAt: chat.createdAt,
     };
+  }
   });
 };
 

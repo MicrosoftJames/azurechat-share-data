@@ -13,6 +13,7 @@ export interface ChatMessageModel {
   userId: string;
   content: string;
   role: ChatRole;
+  references: string[];
   type: "CHAT_MESSAGE";
 }
 
@@ -32,7 +33,17 @@ export interface  ChatThreadModel {
   conversationStyle: ConversationStyle;
   chatOverFileName: string;
   dataSourceId: string;
+  dataSourceName: string;
   type: "CHAT_THREAD";
+}
+
+export interface DataSource {
+  displayName: string;
+  dataSourceId: string;
+}
+
+export interface RAGMessage extends Message {
+  references: string[];
 }
 
 export interface PromptGPTBody {
@@ -41,6 +52,7 @@ export interface PromptGPTBody {
   conversationStyle: ConversationStyle;
   chatOverFileName: string;
   dataSourceId: string;
+  dataSourceName: string;
 }
 
 export interface PromptGPTProps extends PromptGPTBody {

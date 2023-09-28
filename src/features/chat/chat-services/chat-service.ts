@@ -3,11 +3,11 @@ import "server-only";
 
 import { SqlQuerySpec } from "@azure/cosmos";
 import { nanoid } from "nanoid";
-import { CosmosDBContainer } from "../../common/cosmos";
+import { CosmosDBHistoryContainer } from "../../common/cosmos";
 import { ChatMessageModel, MESSAGE_ATTRIBUTE } from "./models";
 
 export const FindAllChats = async (chatThreadID: string) => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
 
   const querySpec: SqlQuerySpec = {
     query:
@@ -44,14 +44,15 @@ export const UpsertChat = async (chatModel: ChatMessageModel) => {
     isDeleted: false,
   };
 
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
   await container.items.upsert(modelToSave);
 };
 
 export const insertPromptAndResponse = async (
   threadID: string,
   userQuestion: string,
-  assistantResponse: string
+  assistantResponse: string,
+  references: string[]
 ) => {
   await UpsertChat({
     ...newChatModel(),
@@ -64,6 +65,7 @@ export const insertPromptAndResponse = async (
     content: assistantResponse,
     threadId: threadID,
     role: "assistant",
+    references: references,
   });
 };
 
@@ -73,6 +75,7 @@ export const newChatModel = (): ChatMessageModel => {
     threadId: "",
     role: "user",
     userId: "",
+    references: [],
     id: nanoid(),
     createdAt: new Date(),
     type: MESSAGE_ATTRIBUTE,

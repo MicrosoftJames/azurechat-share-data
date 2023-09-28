@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ArrowUpCircle, Loader2 } from "lucide-react";
 import { FC, useState } from "react";
-import { ChatType, ConversationStyle } from "../chat-services/models";
+import { ChatType, ConversationStyle, DataSource } from "../chat-services/models";
 import { ChatStyleSelector } from "./chat-style-selector";
 import { ChatTypeSelector } from "./chat-type-selector";
 interface Prop {
@@ -12,6 +12,7 @@ interface Prop {
   chatType: ChatType;
   conversationStyle: ConversationStyle;
   uploadButtonLabel: string;
+  dataSources: DataSource[];
   onChatTypeChange: (value: ChatType) => void;
   onConversationStyleChange: (value: ConversationStyle) => void;
   onFileChange: (file: FormData) => void;
@@ -111,9 +112,9 @@ export const EmptyState: FC<Prop> = (props) => {
               {/* create a dropdown */}
               <select className="w-full" onChange={(e) => {
                 onDataSourceChange(e.target.value);}}>
-                <option value="1">Shared 1</option>
-                <option value="2">Shared 2</option>
-                <option value="3">Shared 3</option>
+                  {props.dataSources.map((dataSource, index) => (
+                    <option value={ dataSource.dataSourceId } key={ index }>{dataSource.displayName}</option>
+                  ))}
               </select>
             </p>
           </div>

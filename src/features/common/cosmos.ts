@@ -26,12 +26,15 @@ export const initDBContainer = async () => {
 };
 
 export class CosmosDBContainer {
-  private static instance: CosmosDBContainer;
   private container: Promise<Container>;
+  private containerName: string;
+  private partitionKey: string;
 
-  private constructor() {
+  constructor(containerName: string, partitionKey: string) {
     const endpoint = process.env.AZURE_COSMOSDB_URI;
     const key = process.env.AZURE_COSMOSDB_KEY;
+    this.containerName = containerName;
+    this.partitionKey = partitionKey;
 
     const client = new CosmosClient({ endpoint, key });
 
@@ -43,9 +46,9 @@ export class CosmosDBContainer {
         .then((databaseResponse) => {
           databaseResponse.database.containers
             .createIfNotExists({
-              id: CONTAINER_NAME,
+              id: this.containerName,
               partitionKey: {
-                paths: ["/userId"],
+                paths: [this.partitionKey],
               },
             })
             .then((containerResponse) => {
@@ -55,15 +58,38 @@ export class CosmosDBContainer {
     });
   }
 
-  public static getInstance(): CosmosDBContainer {
-    if (!CosmosDBContainer.instance) {
-      CosmosDBContainer.instance = new CosmosDBContainer();
-    }
-
-    return CosmosDBContainer.instance;
-  }
-
   public async getContainer(): Promise<Container> {
     return await this.container;
+  }
+}
+
+export class CosmosDBHistoryContainer extends CosmosDBContainer {
+  private static instance: CosmosDBHistoryContainer;
+  private static containerName = "history";
+  private static partitionKey = "/userId";
+
+  public static getInstance(): CosmosDBHistoryContainer {
+    if (!CosmosDBHistoryContainer.instance) {
+      CosmosDBHistoryContainer.instance = new CosmosDBContainer(CosmosDBHistoryContainer.containerName, 
+        CosmosDBHistoryContainer.partitionKey);
+    }
+
+    return CosmosDBHistoryContainer.instance;
+  }
+
+}
+
+export class CosmosDBDataSourcesContainer extends CosmosDBContainer {
+  private static instance: CosmosDBDataSourcesContainer;
+  private static containerName = "dataSources";
+  private static partitionKey = "/dataSourceId";
+
+  public static getInstance(): CosmosDBDataSourcesContainer {
+    if (!CosmosDBDataSourcesContainer.instance) {
+      CosmosDBDataSourcesContainer.instance = new CosmosDBContainer(CosmosDBDataSourcesContainer.containerName, 
+        CosmosDBDataSourcesContainer.partitionKey);
+    }
+
+    return CosmosDBDataSourcesContainer.instance;
   }
 }

@@ -1,6 +1,7 @@
+"use server";
 import { userHashedId } from "@/features/auth/helpers";
 import { CosmosDBChatMessageHistory } from "@/features/langchain/memory/cosmosdb/cosmosdb";
-import { LangChainStream, StreamingTextResponse } from "ai";
+import { LangChainStream, StreamingTextResponse, experimental_StreamData } from "ai";
 import { loadQAMapReduceChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -38,11 +39,15 @@ export const ChatData = async (props: PromptGPTProps) => {
   {
     filter += `dataSourceId eq '${props.dataSourceId}'`
   }
-  
+
   const relevantDocuments = await findRelevantDocuments(
     lastHumanMessage.content,
     filter
-  );
+    );
+  
+  const data = new experimental_StreamData();
+  const references = relevantDocuments.map((doc) => doc.metadata);
+  data.append({id: lastHumanMessage.id, references: references});
 
   const chain = loadQAMapReduceChain(chatModel, {
     combinePrompt: defineSystemPrompt(),
@@ -50,7 +55,11 @@ export const ChatData = async (props: PromptGPTProps) => {
 
   const { stream, handlers } = LangChainStream({
     onCompletion: async (completion: string) => {
-      await insertPromptAndResponse(id, lastHumanMessage.content, completion);
+      await insertPromptAndResponse(id, lastHumanMessage.content, completion, references);
+    },
+    experimental_streamData: true,
+    onFinal() {
+      data.close();
     },
   });
 
@@ -75,12 +84,11 @@ export const ChatData = async (props: PromptGPTProps) => {
     [handlers]
   );
 
-  return new StreamingTextResponse(stream);
+  return new StreamingTextResponse(stream, {}, data);
 };
 
-export const findRelevantDocuments = async (query: string, filter: string) => {
+const findRelevantDocuments = async (query: string, filter: string) => {
   const vectorStore = initVectorStore();
-
   const relevantDocuments = await vectorStore.similaritySearch(query, 10, {
     vectorFields: vectorStore.config.vectorFieldName,
     filter: filter,
@@ -88,6 +96,31 @@ export const findRelevantDocuments = async (query: string, filter: string) => {
 
   return relevantDocuments;
 };
+
+// called by the UI but should not be revealed to the user
+export const findRelevantDocumentIds = async (query: string, threadId: string, dataSourceId: string) => {
+  console.log(process.env.AZURE_SEARCH_API_KEY)
+  const vectorStore = initVectorStore();
+
+  let filter = ''
+
+  if (dataSourceId.length === 0) {
+    filter += `user eq '${await userHashedId()}' and chatThreadId eq '${threadId}'`
+  }
+  else
+  {
+    filter += `dataSourceId eq '${dataSourceId}'`
+  }
+
+  const relevantDocuments = await vectorStore.similaritySearch(query, 10, {
+    vectorFields: vectorStore.config.vectorFieldName,
+    filter: filter
+  });
+
+  return relevantDocuments.map((doc) => doc.metadata);
+
+};
+
 
 const defineSystemPrompt = () => {
   const system_combine_template = `Given the following context and a question, create a final answer. 

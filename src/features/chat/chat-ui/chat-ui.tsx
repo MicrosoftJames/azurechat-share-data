@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { AI_NAME } from "@/features/theme/customise";
 import { useChat } from "ai/react";
 import { useSession } from "next-auth/react";
-import { FC, FormEvent, useRef, useState } from "react";
+import { FC, FormEvent, useEffect, useRef, useState } from "react";
 import {
   IndexDocuments,
   UploadDocument,
@@ -19,7 +19,9 @@ import {
   ChatThreadModel,
   ChatType,
   ConversationStyle,
+  DataSource,
   PromptGPTBody,
+  RAGMessage,
 } from "../chat-services/models";
 import { transformCosmosToAIModel } from "../chat-services/utils";
 import { EmptyState } from "./chat-empty-state";
@@ -28,6 +30,7 @@ import { ChatHeader } from "./chat-header";
 interface Prop {
   chats: Array<ChatMessageModel>;
   chatThread: ChatThreadModel;
+  dataSources: DataSource[];
 }
 
 export const ChatUI: FC<Prop> = (props) => {
@@ -43,27 +46,72 @@ export const ChatUI: FC<Prop> = (props) => {
     chatType: props.chatThread.chatType,
     conversationStyle: props.chatThread.conversationStyle,
     chatOverFileName: props.chatThread.chatOverFileName,
-    dataSourceId: props.chatThread.dataSourceId
+    dataSourceId: props.chatThread.dataSourceId,
+    dataSourceName: props.chatThread.dataSourceName,
   });
 
   const { toast } = useToast();
 
   const id = props.chatThread.id;
-  
+
   const {
+    data,
     messages,
     input,
     handleInputChange,
     handleSubmit,
     reload,
+    setMessages,
     isLoading,
   } = useChat({
     onError,
     id,
     body: chatBody,
+    sendExtraMessageFields: true,
     initialMessages: transformCosmosToAIModel(props.chats),
   });
 
+  function addReferencesToMessageWithId(id: string, references: string[]) {
+    // updates messages with the new message
+    const newMessages = messages.map((message) => {
+      if (message.id === id) {
+        const newMessage: RAGMessage = {
+          ...message,
+          references: references
+        };
+        console.log("newMessage: " + JSON.stringify(newMessage));
+        return newMessage;
+      }
+      return message;
+    });
+
+    setMessages(newMessages); 
+  }
+
+  function getNextMessageId(id: string) {
+    // find the id of the next message
+    const index = messages.findIndex((message) => message.id === id);
+    if (index === -1) {
+      return null;
+    }
+    const nextMessageId = messages[index + 1]?.id;
+    return nextMessageId;
+  }
+    
+  useEffect(() => {
+    if (data) {
+      data.forEach((dict_: Record<string, any>) => {
+        const id = dict_["id"];
+        const references = dict_["references"];
+        const nextId = getNextMessageId(id);
+        if (nextId) {
+          addReferencesToMessageWithId(nextId, references);
+        }
+      });
+    }
+  }, [data]);
+
+ 
   const scrollRef = useRef<HTMLDivElement>(null);
   useChatScrollAnchor(messages, scrollRef);
 
@@ -85,7 +133,16 @@ export const ChatUI: FC<Prop> = (props) => {
   }
 
   const onChatTypeChange = (value: ChatType) => {
-    setBody((e) => ({ ...e, chatType: value }));
+
+    let dataSourceId = "";
+    let dataSourceName = "";
+
+    if (value === "shared") {
+      dataSourceId = props.dataSources[0].dataSourceId;
+      dataSourceName = props.dataSources[0].displayName;
+    }
+
+    setBody((e) => ({ ...e, chatType: value, dataSourceId: dataSourceId, dataSourceName: dataSourceName }));
   };
 
   const onConversationStyleChange = (value: ConversationStyle) => {
@@ -93,6 +150,7 @@ export const ChatUI: FC<Prop> = (props) => {
   };
 
   const onDataSourceChange = (value: string) => {
+    console.log("onDataSourceChange: " + value);
     setBody((e) => ({ ...e, dataSourceId: value }));
   };
 
@@ -163,6 +221,7 @@ export const ChatUI: FC<Prop> = (props) => {
             message={message.content}
             type={message.role}
             key={index}
+            references={message.hasOwnProperty("references") ? message.references : []}
           />
         ))}
         {isLoading && <ChatLoading />}
@@ -184,6 +243,7 @@ export const ChatUI: FC<Prop> = (props) => {
           onDataSourceChange={onDataSourceChange}
           chatType={chatBody.chatType}
           conversationStyle={chatBody.conversationStyle}
+          dataSources={props.dataSources}
         />
       )}
 

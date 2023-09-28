@@ -110,7 +110,7 @@ export class AzureCogSearch<
       method: "POST",
       body: JSON.stringify({value: documentsToDelete}),
     });
-
+    
   }
   /**
    * Search for the most similar documents to a query
@@ -119,7 +119,7 @@ export class AzureCogSearch<
     query: string,
     k?: number,
     filter?: AzureCogFilter
-  ): Promise<Document<TModel>[]> {
+  ): Promise<Document[]> {
     const results = await this.similaritySearchVectorWithScore(
       await this.embeddings.embedQuery(query),
       k || 4,

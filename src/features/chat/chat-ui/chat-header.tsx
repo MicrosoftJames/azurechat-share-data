@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ChatType, ConversationStyle, PromptGPTBody } from "../chat-services/models";
+import { PromptGPTBody } from "../chat-services/models";
 import { ChatStyleSelector } from "./chat-style-selector";
 import { ChatTypeSelector } from "./chat-type-selector";
 
@@ -19,6 +19,9 @@ export const ChatHeader: FC<Prop> = (props) => {
       </div>
       <div className="flex gap-2 h-2">
         <p className="text-xs">{props.chatBody.chatOverFileName}</p>
+      </div>
+      <div className="flex gap-2 h-2">
+        <p className="text-xs">{props.chatBody.dataSourceName}</p>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use server";
 
 import { userHashedId } from "@/features/auth/helpers";
-import { CosmosDBContainer } from "@/features/common/cosmos";
+import { CosmosDBDataSourcesContainer, CosmosDBHistoryContainer } from "@/features/common/cosmos";
 import { AzureCogSearch } from "@/features/langchain/vector-stores/azure-cog-search/azure-cog-vector-store";
 import {
   AzureKeyCredential,
@@ -15,6 +15,7 @@ import {
   CHAT_DOCUMENT_ATTRIBUTE,
   ChatDocumentModel,
   ChatMessageModel,
+  DataSource,
   FaqDocumentIndex,
   MESSAGE_ATTRIBUTE,
   ServerActionResponse,
@@ -159,6 +160,21 @@ export const IndexDocuments = async (
   }
 };
 
+export const FindDataSources = async (): Promise<DataSource[]> => {
+  const container = await CosmosDBDataSourcesContainer.getInstance().getContainer();
+
+  const querySpec: SqlQuerySpec = {
+    query: "SELECT * FROM c",
+  };
+
+  const { resources } = await container.items
+  .query<DataSource>(querySpec)
+  .fetchAll();
+
+  return resources;
+};
+
+
 export const initAzureSearchVectorStore = () => {
   const embedding = new OpenAIEmbeddings();
   const azureSearch = new AzureCogSearch<FaqDocumentIndex>(embedding, {
@@ -185,7 +201,7 @@ export const initDocumentIntelligence = () => {
 };
 
 export const FindAllChatDocuments = async (chatThreadID: string) => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
 
   const querySpec: SqlQuerySpec = {
     query:
@@ -227,7 +243,7 @@ export const UpsertChatDocument = async (
     name: fileName,
   };
 
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
   await container.items.upsert(modelToSave);
 };
 

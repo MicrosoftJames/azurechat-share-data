@@ -17,6 +17,7 @@ interface ChatRowProps {
   profilePicture: string;
   message: string;
   type: ChatRole;
+  references: string[];
 }
 
 const ChatRow: FC<ChatRowProps> = (props) => {
@@ -28,6 +29,11 @@ const ChatRow: FC<ChatRowProps> = (props) => {
   const handleButtonClick = () => {
     toggleIcon();
     navigator.clipboard.writeText(props.message);
+  };
+
+  const [showReferences, setShowReferences] = useState(false);
+  const handleDropDownClick = () => {
+    setShowReferences((prevState) => !prevState);
   };
 
   return (
@@ -134,6 +140,37 @@ const ChatRow: FC<ChatRowProps> = (props) => {
             props.message
           )}
         </div>
+
+          {props.references && props.references.length > 0 && (
+            <div className="justify-start">
+              <Button
+                variant={"link"}
+                size={"sm"}
+                title="Show references"
+                className="justify-right flex"
+                style={{paddingLeft: 0, paddingRight: 0}}
+                onClick={handleDropDownClick}>
+                <Typography variant="h5" className="capitalize text-sm">
+                  Show References
+                </Typography>
+              </Button>
+              {showReferences && (
+                <div>
+                  {props.references.map((reference, index) => (
+                    <MemoizedReactMarkdown key={index} className="prose prose-slate dark:prose-invert break-words prose-p:leading-relaxed prose-pre:p-0 max-w-none">
+                      {reference}
+                    </MemoizedReactMarkdown>)
+                    )}    
+                </div>
+              )}
+          
+        </div>
+          )
+          
+        }
+
+
+          
       </div>
     </div>
   );

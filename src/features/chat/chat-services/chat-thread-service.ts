@@ -5,7 +5,7 @@ import { userHashedId, userSession } from "@/features/auth/helpers";
 import { FindAllChats } from "@/features/chat/chat-services/chat-service";
 import { SqlQuerySpec } from "@azure/cosmos";
 import { nanoid } from "nanoid";
-import { CosmosDBContainer } from "../../common/cosmos";
+import { CosmosDBHistoryContainer } from "../../common/cosmos";
 import {
   CHAT_THREAD_ATTRIBUTE,
   ChatMessageModel,
@@ -17,7 +17,7 @@ import {
 import { FindAllChatDocuments, DeleteDocuments } from "./chat-document-service";
 
 export const FindAllChatThreadForCurrentUser = async () => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
 
   const querySpec: SqlQuerySpec = {
     query:
@@ -47,7 +47,7 @@ export const FindAllChatThreadForCurrentUser = async () => {
 };
 
 export const FindChatThreadByID = async (id: string) => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
 
   const querySpec: SqlQuerySpec = {
     query:
@@ -80,7 +80,7 @@ export const FindChatThreadByID = async (id: string) => {
 };
 
 export const SoftDeleteChatThreadByID = async (chatThreadID: string) => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
   const threads = await FindChatThreadByID(chatThreadID);
 
   if (threads.length !== 0) {
@@ -130,7 +130,7 @@ export const EnsureChatThreadIsForCurrentUser = async (
 };
 
 export const UpsertChatThread = async (chatThread: ChatThreadModel) => {
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
   const updatedChatThread = await container.items.upsert<ChatThreadModel>(
     chatThread
   );
@@ -181,7 +181,7 @@ export const CreateChatThread = async () => {
     dataSourceId: ""
   };
 
-  const container = await CosmosDBContainer.getInstance().getContainer();
+  const container = await CosmosDBHistoryContainer.getInstance().getContainer();
   const response = await container.items.create<ChatThreadModel>(modelToSave);
   return response.resource;
 };
