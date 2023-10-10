@@ -71,6 +71,7 @@ export const EmptyState: FC<Prop> = (props) => {
             chatType={props.chatType}
             onChatTypeChange={onChatTypeChange}
             disable={false}
+            dataSources={props.dataSources}
           />
         </div>
         {        
@@ -109,7 +110,6 @@ export const EmptyState: FC<Prop> = (props) => {
         {showDataSelection === "shared" && (
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground">
-              {/* create a dropdown */}
               <select className="w-full" onChange={(e) => {
                 onDataSourceChange(e.target.value);}}>
                   {props.dataSources.map((dataSource, index) => (

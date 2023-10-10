@@ -1,11 +1,12 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, FileText, MessageCircle } from "lucide-react";
 import { FC } from "react";
-import { ChatType } from "../chat-services/models";
+import { ChatType, DataSource } from "../chat-services/models";
 
 interface Prop {
   chatType: ChatType;
   disable: boolean;
+  dataSources?: DataSource[];
   onChatTypeChange?: (value: ChatType) => void;
 }
 
@@ -37,7 +38,7 @@ export const ChatTypeSelector: FC<Prop> = (props) => {
         <TabsTrigger
           value="shared"
           className="flex gap-2"
-          disabled={props.disable}
+          disabled={props.disable || (props.dataSources && props.dataSources.length === 0)}
         >
           <Database size={15} /> Shared
         </TabsTrigger>
